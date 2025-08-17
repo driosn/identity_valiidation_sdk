@@ -1,0 +1,19 @@
+import 'package:flutter/material.dart';
+import 'package:sudamericana_validador_identidad/core/compartido/colores.dart';
+import 'package:sudamericana_validador_identidad/data/modelos/orientacion_documento.dart';
+import 'package:sudamericana_validador_identidad/presentacion/dialogos/foto_carnet_info_dialogo.dart';
+
+extension DialogosExtension on BuildContext {
+  void mostrarDialogoFotoCarnetInfo(OrientacionDocumento orientacionDocumento) {
+    showDialog(
+      context: this,
+      builder:
+          (context) => Dialog(
+            backgroundColor: Colores.fondoDialogo,
+            child: FotoCarnetInfoDialogo(
+              orientacionDocumento: orientacionDocumento,
+            ),
+          ),
+    );
+  }
+}
