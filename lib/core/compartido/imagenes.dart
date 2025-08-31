@@ -1,6 +1,5 @@
 class Imagenes {
-  static const String ubicacionBase =
-      'packages/sudamericana_validador_identidad/assets/imagenes';
+  static const String ubicacionBase = 'packages/sudamericana_validador_identidad/assets/imagenes';
 
   static const String carnetAnverso = '$ubicacionBase/carnet_anverso.png';
 
@@ -12,18 +11,19 @@ class Imagenes {
 
   static const String mascaraReverso = '$ubicacionBase/mascara_reverso.jpeg';
 
-  static const String dialogoCarnetAnverso =
-      '$ubicacionBase/dialogo_carnet_anverso.png';
+  static const String dialogoCarnetAnverso = '$ubicacionBase/dialogo_carnet_anverso.png';
 
-  static const String dialogoCarnetReverso =
-      '$ubicacionBase/dialogo_carnet_reverso.png';
+  static const String dialogoCarnetReverso = '$ubicacionBase/dialogo_carnet_reverso.png';
 
-  static const String mascaraFacialFrontal =
-      '$ubicacionBase/mascara_facial_frontal.png';
+  static const String mascaraFacialFrontal = '$ubicacionBase/mascara_facial_frontal.png';
 
-  static const String mascaraFacialIzquierda =
-      '$ubicacionBase/mascara_facial_izquierda.png';
+  static const String mascaraFacialIzquierda = '$ubicacionBase/mascara_facial_izquierda.png';
 
-  static const String mascaraFacialDerecha =
-      '$ubicacionBase/mascara_facial_derecha.png';
+  static const String mascaraFacialDerecha = '$ubicacionBase/mascara_facial_derecha.png';
+
+  static const String infoFacialCentro = '$ubicacionBase/info_facial_centro.png';
+
+  static const String infoFacialIzquierda = '$ubicacionBase/info_facial_izquierda.png';
+
+  static const String infoFacialDerecha = '$ubicacionBase/info_facial_derecha.png';
 }

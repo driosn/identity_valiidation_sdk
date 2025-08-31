@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class Colores {
   static const fondo = Color(0xFFFFFFFF);
   static const fondoEnPrincipal = Color(0xFFebf1fd);
+  static const transparente = Colors.transparent;
 
   ///
   /// Text

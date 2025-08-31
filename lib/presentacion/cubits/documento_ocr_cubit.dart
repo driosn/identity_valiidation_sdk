@@ -15,14 +15,14 @@ import 'package:sudamericana_validador_identidad/data/modelos/orientacion_docume
 import 'package:sudamericana_validador_identidad/data/modelos/resultado_ocr/resultado_ocr.dart';
 import 'package:sudamericana_validador_identidad/dominio/repositorios/ocr_repositorio.dart';
 
-part 'ml_kit_cubit.freezed.dart';
+part 'documento_ocr_cubit.freezed.dart';
 
-class MLKitCubit extends Cubit<MLKitState> {
-  MLKitCubit({
+class DocumentoOCRCubit extends Cubit<DocumentoOCRState> {
+  DocumentoOCRCubit({
     required this.ocrRepositorio,
     required OrientacionDocumento orientacionEsperada,
   }) : super(
-         MLKitState(
+         DocumentoOCRState(
            inputImage: null,
            estadoProcesamiento: EstadoProcesamiento.noProcesando(),
            customPaint: null,
@@ -210,14 +210,14 @@ class MLKitCubit extends Cubit<MLKitState> {
 }
 
 @freezed
-class MLKitState with _$MLKitState {
-  const factory MLKitState({
+class DocumentoOCRState with _$DocumentoOCRState {
+  const factory DocumentoOCRState({
     required InputImage? inputImage,
     required EstadoProcesamiento estadoProcesamiento,
     required CustomPaint? customPaint,
     required List<BloqueTexto> bloquesTexto,
     required OrientacionDocumento orientacionEsperada,
-  }) = _MlKitState;
+  }) = _DocumentoOCRState;
 }
 
 @freezed

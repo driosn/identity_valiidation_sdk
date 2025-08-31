@@ -14,7 +14,7 @@ import 'package:sudamericana_validador_identidad/data/modelos/orientacion_docume
 import 'package:sudamericana_validador_identidad/data/repositorios/ocr_repositorio_impl.dart';
 import 'package:sudamericana_validador_identidad/data/servicios/ocr_servicio.dart';
 import 'package:sudamericana_validador_identidad/presentacion/cubits/camara_cubit.dart';
-import 'package:sudamericana_validador_identidad/presentacion/cubits/ml_kit_cubit.dart';
+import 'package:sudamericana_validador_identidad/presentacion/cubits/documento_ocr_cubit.dart';
 import 'package:sudamericana_validador_identidad/presentacion/cubits/validador_identidad_cubit.dart';
 import 'package:sudamericana_validador_identidad/presentacion/pantallas/informacion_pantalla.dart';
 
@@ -29,13 +29,13 @@ class CamaraCarnetPantalla extends StatefulWidget {
 
 class _CamaraCarnetPantallaState extends State<CamaraCarnetPantalla> {
   final _camaraCubit = CamaraCubit(direccionCamara: CameraLensDirection.back);
-  late final MLKitCubit _mlKitCubit;
+  late final DocumentoOCRCubit _documentoOCRCubit;
 
   @override
   void initState() {
     super.initState();
 
-    _mlKitCubit = MLKitCubit(
+    _documentoOCRCubit = DocumentoOCRCubit(
       ocrRepositorio: OcrRepositorioImpl(ocrServicio: OcrServicio()),
       orientacionEsperada: widget.orientacionDocumento,
     );
@@ -44,7 +44,7 @@ class _CamaraCarnetPantallaState extends State<CamaraCarnetPantalla> {
       alProcesarImagen: (image) {
         _camaraCubit.state.whenOrNull(
           camaraInicializada: (controladorCamara, camaraTrasera) {
-            _mlKitCubit.procesarImagenDeCamara(
+            _documentoOCRCubit.procesarImagenDeCamara(
               imagen: image,
               controladorCamara: controladorCamara,
               camara: camaraTrasera,
@@ -64,13 +64,13 @@ class _CamaraCarnetPantallaState extends State<CamaraCarnetPantalla> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocListener<MLKitCubit, MLKitState>(
-        bloc: _mlKitCubit,
+      body: BlocListener<DocumentoOCRCubit, DocumentoOCRState>(
+        bloc: _documentoOCRCubit,
         listener: (context, state) {
           // print('Input Image: ${state.inputImage}');
 
           // if (state.inputImage != null) {
-          //   _mlKitCubit.procesarImagen(
+          //   _documentoOCRCubit.procesarImagen(
           //     imagenDeEntrada: state.inputImage!,
           //     camara:
           //         _camaraCubit.state.whenOrNull(
@@ -90,7 +90,7 @@ class _CamaraCarnetPantallaState extends State<CamaraCarnetPantalla> {
                   (controladorCamara, camaraTrasera) =>
                       _VistaCamaraInicializada(
                         controladorCamara: controladorCamara,
-                        mlKitCubit: _mlKitCubit,
+                        documentoOCRCubit: _documentoOCRCubit,
                         orientacionDocumento: widget.orientacionDocumento,
                       ),
               camaraSinPermisos: () => const _VistaCamaraSinPermisos(),
@@ -131,19 +131,20 @@ class _VistaCamaraInicializando extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class _VistaCamaraInicializada extends StatelessWidget {
   _VistaCamaraInicializada({
     required this.controladorCamara,
-    required this.mlKitCubit,
+    required this.documentoOCRCubit,
     required this.orientacionDocumento,
   });
 
-  final MLKitCubit mlKitCubit;
+  final DocumentoOCRCubit documentoOCRCubit;
   final OrientacionDocumento orientacionDocumento;
   final CameraController controladorCamara;
 
-  final camaraKey = GlobalKey();
-  final _cameraGuideKey = GlobalKey();
+  final _camaraKey = GlobalKey();
+  final _guiaCamaraKey = GlobalKey();
 
   final bool _showEdges = false;
   Offset? topLeftEdge;
@@ -162,7 +163,7 @@ class _VistaCamaraInicializada extends StatelessWidget {
           children: [
             Center(
               child: RepaintBoundary(
-                key: camaraKey,
+                key: _camaraKey,
                 child: CameraPreview(controladorCamara),
               ),
             ),
@@ -207,7 +208,7 @@ class _VistaCamaraInicializada extends StatelessWidget {
                             aspectRatio:
                                 0.63, // proporción estándar del documento
                             child: RepaintBoundary(
-                              key: _cameraGuideKey,
+                              key: _guiaCamaraKey,
                               child: Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(
@@ -248,8 +249,8 @@ class _VistaCamaraInicializada extends StatelessWidget {
             ),
 
             Positioned.fill(
-              child: BlocConsumer<MLKitCubit, MLKitState>(
-                bloc: mlKitCubit,
+              child: BlocConsumer<DocumentoOCRCubit, DocumentoOCRState>(
+                bloc: documentoOCRCubit,
                 listenWhen:
                     (previous, current) =>
                         previous.estadoProcesamiento !=
@@ -386,7 +387,7 @@ class _VistaCamaraInicializada extends StatelessWidget {
       await Future.delayed(Duration(milliseconds: 100));
 
       final RenderRepaintBoundary? boundary =
-          _cameraGuideKey.currentContext?.findRenderObject()
+          _guiaCamaraKey.currentContext?.findRenderObject()
               as RenderRepaintBoundary?;
 
       if (boundary == null) {
@@ -420,11 +421,11 @@ class _VistaCamaraInicializada extends StatelessWidget {
       await Future.delayed(Duration(milliseconds: 100));
 
       final RenderRepaintBoundary? boundary =
-          camaraKey.currentContext?.findRenderObject()
+          _camaraKey.currentContext?.findRenderObject()
               as RenderRepaintBoundary?;
 
       final renderBox =
-          _cameraGuideKey.currentContext!.findRenderObject() as RenderBox;
+          _guiaCamaraKey.currentContext!.findRenderObject() as RenderBox;
 
       // Posición en coordenadas absolutas en pantalla
       final position = renderBox.localToGlobal(Offset.zero);

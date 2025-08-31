@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'ml_kit_cubit.dart';
+part of 'documento_ocr_cubit.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -16,7 +16,7 @@ final _privateConstructorUsedError = UnsupportedError(
 );
 
 /// @nodoc
-mixin _$MLKitState {
+mixin _$DocumentoOCRState {
   InputImage? get inputImage => throw _privateConstructorUsedError;
   EstadoProcesamiento get estadoProcesamiento =>
       throw _privateConstructorUsedError;
@@ -25,19 +25,19 @@ mixin _$MLKitState {
   OrientacionDocumento get orientacionEsperada =>
       throw _privateConstructorUsedError;
 
-  /// Create a copy of MLKitState
+  /// Create a copy of DocumentoOCRState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $MLKitStateCopyWith<MLKitState> get copyWith =>
+  $DocumentoOCRStateCopyWith<DocumentoOCRState> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $MLKitStateCopyWith<$Res> {
-  factory $MLKitStateCopyWith(
-    MLKitState value,
-    $Res Function(MLKitState) then,
-  ) = _$MLKitStateCopyWithImpl<$Res, MLKitState>;
+abstract class $DocumentoOCRStateCopyWith<$Res> {
+  factory $DocumentoOCRStateCopyWith(
+    DocumentoOCRState value,
+    $Res Function(DocumentoOCRState) then,
+  ) = _$DocumentoOCRStateCopyWithImpl<$Res, DocumentoOCRState>;
   @useResult
   $Res call({
     InputImage? inputImage,
@@ -52,16 +52,16 @@ abstract class $MLKitStateCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$MLKitStateCopyWithImpl<$Res, $Val extends MLKitState>
-    implements $MLKitStateCopyWith<$Res> {
-  _$MLKitStateCopyWithImpl(this._value, this._then);
+class _$DocumentoOCRStateCopyWithImpl<$Res, $Val extends DocumentoOCRState>
+    implements $DocumentoOCRStateCopyWith<$Res> {
+  _$DocumentoOCRStateCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of MLKitState
+  /// Create a copy of DocumentoOCRState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -104,7 +104,7 @@ class _$MLKitStateCopyWithImpl<$Res, $Val extends MLKitState>
     );
   }
 
-  /// Create a copy of MLKitState
+  /// Create a copy of DocumentoOCRState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
@@ -116,7 +116,7 @@ class _$MLKitStateCopyWithImpl<$Res, $Val extends MLKitState>
     });
   }
 
-  /// Create a copy of MLKitState
+  /// Create a copy of DocumentoOCRState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
@@ -130,12 +130,12 @@ class _$MLKitStateCopyWithImpl<$Res, $Val extends MLKitState>
 }
 
 /// @nodoc
-abstract class _$$MlKitStateImplCopyWith<$Res>
-    implements $MLKitStateCopyWith<$Res> {
-  factory _$$MlKitStateImplCopyWith(
-    _$MlKitStateImpl value,
-    $Res Function(_$MlKitStateImpl) then,
-  ) = __$$MlKitStateImplCopyWithImpl<$Res>;
+abstract class _$$DocumentoOCRStateImplCopyWith<$Res>
+    implements $DocumentoOCRStateCopyWith<$Res> {
+  factory _$$DocumentoOCRStateImplCopyWith(
+    _$DocumentoOCRStateImpl value,
+    $Res Function(_$DocumentoOCRStateImpl) then,
+  ) = __$$DocumentoOCRStateImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({
@@ -153,15 +153,15 @@ abstract class _$$MlKitStateImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$MlKitStateImplCopyWithImpl<$Res>
-    extends _$MLKitStateCopyWithImpl<$Res, _$MlKitStateImpl>
-    implements _$$MlKitStateImplCopyWith<$Res> {
-  __$$MlKitStateImplCopyWithImpl(
-    _$MlKitStateImpl _value,
-    $Res Function(_$MlKitStateImpl) _then,
+class __$$DocumentoOCRStateImplCopyWithImpl<$Res>
+    extends _$DocumentoOCRStateCopyWithImpl<$Res, _$DocumentoOCRStateImpl>
+    implements _$$DocumentoOCRStateImplCopyWith<$Res> {
+  __$$DocumentoOCRStateImplCopyWithImpl(
+    _$DocumentoOCRStateImpl _value,
+    $Res Function(_$DocumentoOCRStateImpl) _then,
   ) : super(_value, _then);
 
-  /// Create a copy of MLKitState
+  /// Create a copy of DocumentoOCRState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -173,7 +173,7 @@ class __$$MlKitStateImplCopyWithImpl<$Res>
     Object? orientacionEsperada = null,
   }) {
     return _then(
-      _$MlKitStateImpl(
+      _$DocumentoOCRStateImpl(
         inputImage:
             freezed == inputImage
                 ? _value.inputImage
@@ -206,8 +206,10 @@ class __$$MlKitStateImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$MlKitStateImpl with DiagnosticableTreeMixin implements _MlKitState {
-  const _$MlKitStateImpl({
+class _$DocumentoOCRStateImpl
+    with DiagnosticableTreeMixin
+    implements _DocumentoOCRState {
+  const _$DocumentoOCRStateImpl({
     required this.inputImage,
     required this.estadoProcesamiento,
     required this.customPaint,
@@ -234,14 +236,14 @@ class _$MlKitStateImpl with DiagnosticableTreeMixin implements _MlKitState {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'MLKitState(inputImage: $inputImage, estadoProcesamiento: $estadoProcesamiento, customPaint: $customPaint, bloquesTexto: $bloquesTexto, orientacionEsperada: $orientacionEsperada)';
+    return 'DocumentoOCRState(inputImage: $inputImage, estadoProcesamiento: $estadoProcesamiento, customPaint: $customPaint, bloquesTexto: $bloquesTexto, orientacionEsperada: $orientacionEsperada)';
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties
-      ..add(DiagnosticsProperty('type', 'MLKitState'))
+      ..add(DiagnosticsProperty('type', 'DocumentoOCRState'))
       ..add(DiagnosticsProperty('inputImage', inputImage))
       ..add(DiagnosticsProperty('estadoProcesamiento', estadoProcesamiento))
       ..add(DiagnosticsProperty('customPaint', customPaint))
@@ -253,7 +255,7 @@ class _$MlKitStateImpl with DiagnosticableTreeMixin implements _MlKitState {
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$MlKitStateImpl &&
+            other is _$DocumentoOCRStateImpl &&
             (identical(other.inputImage, inputImage) ||
                 other.inputImage == inputImage) &&
             (identical(other.estadoProcesamiento, estadoProcesamiento) ||
@@ -278,23 +280,26 @@ class _$MlKitStateImpl with DiagnosticableTreeMixin implements _MlKitState {
     orientacionEsperada,
   );
 
-  /// Create a copy of MLKitState
+  /// Create a copy of DocumentoOCRState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$MlKitStateImplCopyWith<_$MlKitStateImpl> get copyWith =>
-      __$$MlKitStateImplCopyWithImpl<_$MlKitStateImpl>(this, _$identity);
+  _$$DocumentoOCRStateImplCopyWith<_$DocumentoOCRStateImpl> get copyWith =>
+      __$$DocumentoOCRStateImplCopyWithImpl<_$DocumentoOCRStateImpl>(
+        this,
+        _$identity,
+      );
 }
 
-abstract class _MlKitState implements MLKitState {
-  const factory _MlKitState({
+abstract class _DocumentoOCRState implements DocumentoOCRState {
+  const factory _DocumentoOCRState({
     required final InputImage? inputImage,
     required final EstadoProcesamiento estadoProcesamiento,
     required final CustomPaint? customPaint,
     required final List<BloqueTexto> bloquesTexto,
     required final OrientacionDocumento orientacionEsperada,
-  }) = _$MlKitStateImpl;
+  }) = _$DocumentoOCRStateImpl;
 
   @override
   InputImage? get inputImage;
@@ -307,11 +312,11 @@ abstract class _MlKitState implements MLKitState {
   @override
   OrientacionDocumento get orientacionEsperada;
 
-  /// Create a copy of MLKitState
+  /// Create a copy of DocumentoOCRState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$MlKitStateImplCopyWith<_$MlKitStateImpl> get copyWith =>
+  _$$DocumentoOCRStateImplCopyWith<_$DocumentoOCRStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
