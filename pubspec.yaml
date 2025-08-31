@@ -8,7 +8,8 @@ environment:
 
 dependencies:
   bloc: ^9.0.0
-  camera: ^0.11.2
+  camera: ^0.10.5+9  # Versión que usa camera_android por defecto
+  camera_android: ^0.10.10+1  # Forzar uso de camera_android para soporte NV21
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
@@ -19,6 +20,9 @@ dependencies:
   json_annotation: ^4.9.0
   path_provider: ^2.1.5
   permission_handler: ^11.0.0
+
+dependency_overrides:
+  camera_android_camerax: null
 
 dev_dependencies:
   build_runner: ^2.4.13

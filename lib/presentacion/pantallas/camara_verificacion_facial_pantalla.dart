@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:camera/camera.dart';
@@ -6,13 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
+import 'package:sudamericana_validador_identidad/core/compartido/extensiones/orientacion_dispositivo_extension.dart';
 import 'package:sudamericana_validador_identidad/core/compartido/imagenes.dart';
 import 'package:sudamericana_validador_identidad/core/compartido/tamano.dart';
 import 'package:sudamericana_validador_identidad/data/modelos/orientacion_facial.dart';
+import 'package:sudamericana_validador_identidad/presentacion/clippers/clipper_ovalo.dart';
 import 'package:sudamericana_validador_identidad/presentacion/cubits/camara_cubit.dart';
-import 'package:sudamericana_validador_identidad/presentacion/cubits/validador_identidad_cubit.dart';
-import 'package:sudamericana_validador_identidad/presentacion/pantallas/informacion_pantalla.dart';
 
 class CamaraVerificacionFacialPantalla extends StatefulWidget {
   const CamaraVerificacionFacialPantalla({
@@ -46,184 +48,103 @@ class _CamaraVerificacionFacialPantallaState
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      await Future.delayed(Duration(milliseconds: 4000));
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder:
-              (context) => widget.orientacionFacial.when(
-                izquierda:
-                    () => CamaraVerificacionFacialPantalla(
-                      orientacionFacial: OrientacionFacial.derecha(),
-                    ),
-                derecha: () {
-                  print('===============================================');
-                  print('Datos verificados:');
-                  print(
-                    'Nombre: ${context.read<ValidadorIdentidadCubit>().state.datosValidacion.nombre}',
-                  );
-                  print(
-                    'Numero: ${context.read<ValidadorIdentidadCubit>().state.datosValidacion.numero}',
-                  );
-                  print(
-                    'Emision: ${context.read<ValidadorIdentidadCubit>().state.datosValidacion.emision}',
-                  );
-                  print(
-                    'Expiracion: ${context.read<ValidadorIdentidadCubit>().state.datosValidacion.expiracion}',
-                  );
-                  print(
-                    'UbicaciónFoto: ${context.read<ValidadorIdentidadCubit>().state.datosValidacion.fotoTempSrc}',
-                  );
-                  print('===============================================');
-
-                  return Scaffold(
-                    body: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Verificacion realizada correctamente'),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => InformacionPantalla(
-                                        tipoInformacion: DocumentoAnverso(),
-                                      ),
-                                ),
-                              );
-                            },
-                            child: Text('Reiniciar'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-                centro:
-                    () => CamaraVerificacionFacialPantalla(
-                      orientacionFacial: OrientacionFacial.izquierda(),
-                    ),
-              ),
-        ),
-      );
-    });
     _camaraCubit.inicializarCamara(
       alProcesarImagen: (imagen) {
-        // if (procesando) return;
-        // procesando = true;
-        //
-        // Future.delayed(Duration(milliseconds: 500), () {
-        // procesando = false;
-        // });
+        if (procesando) return;
+        procesando = true;
 
-        // get image rotation
-        // it is used in android to convert the InputImage from Dart to Java: https://github.com/flutter-ml/google_ml_kit_flutter/blob/master/packages/google_mlkit_commons/android/src/main/java/com/google_mlkit_commons/InputImageConverter.java
-        // `rotation` is not used in iOS to convert the InputImage from Dart to Obj-C: https://github.com/flutter-ml/google_ml_kit_flutter/blob/master/packages/google_mlkit_commons/ios/Classes/MLKVisionImage%2BFlutterPlugin.m
-        // in both platforms `rotation` and `camera.lensDirection` can be used to compensate `x` and `y` coordinates on a canvas: https://github.com/flutter-ml/google_ml_kit_flutter/blob/master/packages/example/lib/vision_detector_views/painters/coordinates_translator.dart
+        Future.delayed(Duration(milliseconds: 500), () {
+          procesando = false;
+        });
 
-        // _camaraCubit.state.whenOrNull(
-        //   camaraInicializada: (controladorCamara, camara) {
-        //     final orientacionDeSensor = camara.sensorOrientation;
-        //     InputImageRotation? rotacion;
-        //     if (Platform.isIOS) {
-        //       rotacion = InputImageRotationValue.fromRawValue(
-        //         orientacionDeSensor,
-        //       );
-        //     } else if (Platform.isAndroid) {
-        //       var compensacionDeRotacion =
-        //           controladorCamara.obtenerCompensacionDeRotacion();
-        //       if (compensacionDeRotacion == null) return;
-        //       if (camara.lensDirection == CameraLensDirection.front) {
-        //         // front-facing
-        //         compensacionDeRotacion =
-        //             (orientacionDeSensor + compensacionDeRotacion) % 360;
-        //       } else {
-        //         // back-facing
-        //         compensacionDeRotacion =
-        //             (orientacionDeSensor - compensacionDeRotacion + 360) % 360;
-        //       }
-        //       rotacion = InputImageRotationValue.fromRawValue(
-        //         compensacionDeRotacion,
-        //       );
-        //       // print('rotationCompensation: $rotationCompensation');
-        //     }
-        //     if (rotacion == null) return;
-        //     // print('final rotation: $rotation');
+        _camaraCubit.state.whenOrNull(
+          camaraInicializada: (controladorCamara, camara) {
+            final orientacionDeSensor = camara.sensorOrientation;
+            InputImageRotation? rotacion;
+            if (Platform.isIOS) {
+              rotacion = InputImageRotationValue.fromRawValue(
+                orientacionDeSensor,
+              );
+            } else if (Platform.isAndroid) {
+              var compensacionDeRotacion =
+                  controladorCamara.obtenerCompensacionDeRotacion();
+              if (compensacionDeRotacion == null) return;
+              if (camara.lensDirection == CameraLensDirection.front) {
+                // front-facing
+                compensacionDeRotacion =
+                    (orientacionDeSensor + compensacionDeRotacion) % 360;
+              } else {
+                // back-facing
+                compensacionDeRotacion =
+                    (orientacionDeSensor - compensacionDeRotacion + 360) % 360;
+              }
+              rotacion = InputImageRotationValue.fromRawValue(
+                compensacionDeRotacion,
+              );
+              // print('rotationCompensation: $rotationCompensation');
+            }
+            if (rotacion == null) return;
+            // print('final rotation: $rotation');
 
-        //     final plano = imagen.planes.firstOrNull;
-        //     if (plano == null) {
-        //       return;
-        //     }
+            // get image format
+            final format = InputImageFormatValue.fromRawValue(
+              imagen.format.raw,
+            );
+            // validate format depending on platform
+            // only supported formats:
+            // * nv21 for Android
+            // * bgra8888 for iOS
+            if (format == null ||
+                (Platform.isAndroid && format != InputImageFormat.nv21) ||
+                (Platform.isIOS && format != InputImageFormat.bgra8888)) {
+              return null;
+            }
 
-        //     // get image format
-        //     final format = InputImageFormatValue.fromRawValue(
-        //       imagen.format.raw,
-        //     );
-        //     // validate format depending on platform
-        //     // only supported formats:
-        //     // * nv21 for Android
-        //     // * bgra8888 for iOS
-        //     if (format == null ||
-        //         (Platform.isIOS && format != InputImageFormat.bgra8888)) {
-        //       return;
-        //     }
+            // since format is constraint to nv21 or bgra8888, both only have one plane
+            if (imagen.planes.length != 1) return;
+            final plano = imagen.planes.first;
 
-        //     // since format is constraint to nv21 or bgra8888, both only have one plane
-        //     // if (imagen.planes.length != 1) return;
-        //     // final plano = imagen.planes.first;
+            // compose InputImage using bytes
+            final imagenDeEntrada = InputImage.fromBytes(
+              bytes: plano.bytes,
+              metadata: InputImageMetadata(
+                size: Size(imagen.width.toDouble(), imagen.height.toDouble()),
+                rotation: rotacion, // used only in Android
+                format: format, // used only in iOS
+                bytesPerRow: plano.bytesPerRow, // used only in iOS
+              ),
+            );
 
-        //     final Uint8List bytes;
-        //     if (Platform.isAndroid) {
-        //       bytes = imagen.getNv21Uint8List();
-        //     } else {
-        //       final allBytes = WriteBuffer();
-        //       for (final plane in imagen.planes) {
-        //         allBytes.putUint8List(plane.bytes);
-        //       }
-        //       bytes = allBytes.done().buffer.asUint8List();
-        //     }
+            // emit(state.copyWith(inputImage: imagenDeEntrada));
 
-        //     // compose InputImage using bytes
-        //     final imagenDeEntrada = InputImage.fromBytes(
-        //       bytes: bytes,
-        //       metadata: InputImageMetadata(
-        //         size: Size(imagen.width.toDouble(), imagen.height.toDouble()),
-        //         rotation: rotacion, // used only in Android
-        //         format:
-        //             Platform.isAndroid
-        //                 ? InputImageFormat.nv21
-        //                 : format, // used only in iOS
-        //         bytesPerRow: plano.bytesPerRow, // used only in iOS
-        //       ),
-        //     );
-
-        //     // emit(state.copyWith(inputImage: imagenDeEntrada));
-
-        //     // Procesar la imagen inmediatamente después de emitir
-        //     procesarImagen(imagenDeEntrada);
-        //   },
-        // );
+            // Procesar la imagen inmediatamente después de emitir
+            procesarImagen(
+              imagenDeEntrada: imagenDeEntrada,
+              imagenDeCamara: imagen,
+            );
+          },
+        );
       },
     );
   }
 
-  void procesarImagen(InputImage image) async {
-    final faces = await faceDetector.processImage(image);
+  void procesarImagen({
+    required CameraImage imagenDeCamara,
+    required InputImage imagenDeEntrada,
+  }) async {
+    final faces = await faceDetector.processImage(imagenDeEntrada);
+
+    print('FACES: ${faces.length}');
     if (faces.isNotEmpty) {
       final face = faces.first;
 
-      final rotacion = face.headEulerAngleY;
-      final rotacionX = face.headEulerAngleX;
+      final rotacionHorizontal = face.headEulerAngleY;
 
-      print('rotacion: $rotacion');
+      print('rotacion: $rotacionHorizontal');
 
       widget.orientacionFacial.when(
         izquierda: () {
-          if (rotacion != null && rotacion > 20) {
+          if (rotacionHorizontal != null && rotacionHorizontal > 35) {
             _camaraCubit.dispose();
 
             Navigator.push(
@@ -240,7 +161,7 @@ class _CamaraVerificacionFacialPantallaState
           }
         },
         derecha: () {
-          if (rotacion != null && rotacion > -20) {
+          if (rotacionHorizontal != null && rotacionHorizontal < -35) {
             _camaraCubit.dispose();
 
             Navigator.push(
@@ -255,29 +176,102 @@ class _CamaraVerificacionFacialPantallaState
           }
         },
         centro: () async {
-          _rotacion.value = rotacionX ?? 0;
-          return;
+          if (rotacionHorizontal != null &&
+              rotacionHorizontal < 2 &&
+              rotacionHorizontal > -2) {
+            final file = await _cameraImageToFile(imagenDeCamara);
 
-          if (rotacion != null && rotacion < 3 && rotacion > -3) {
-            // final file = await _obtenerFoto();
+            showDialog(
+              context: context,
+              builder: (context) {
+                return Dialog(child: Image.file(file));
+              },
+            );
 
             _camaraCubit.dispose();
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) => CamaraVerificacionFacialPantalla(
-                      orientacionFacial: OrientacionFacial.derecha(),
-                    ),
-              ),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder:
+            //         (context) => CamaraVerificacionFacialPantalla(
+            //           orientacionFacial: OrientacionFacial.derecha(),
+            //         ),
+            //   ),
+            // );
           }
         },
       );
-
-      _rotacion.value = rotacionX ?? 0;
     }
+  }
+
+  Future<File> _cameraImageToFile(CameraImage cameraImage) async {
+    try {
+      // Obtener el directorio temporal
+      final directory = await getTemporaryDirectory();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final filePath = '${directory.path}/camera_image_$timestamp.raw';
+
+      // Obtener los bytes del primer plano (Y channel)
+      final plane = cameraImage.planes.first;
+      final bytes = plane.bytes;
+
+      // Escribir bytes al archivo
+      final file = nv21ToFile(bytes, cameraImage.width, cameraImage.height);
+
+      return file;
+    } catch (e) {
+      throw Exception('Error al convertir CameraImage a File: $e');
+    }
+  }
+
+  Future<File> nv21ToFile(Uint8List nv21, int width, int height) async {
+    // Convert NV21 → RGB
+    img.Image rgbImage = _convertNV21ToImage(nv21, width, height);
+
+    // Encode to PNG
+    rgbImage = img.copyRotate(rgbImage, angle: -90);
+    final pngBytes = img.encodePng(rgbImage);
+
+    // Save to file
+    final directory = await getTemporaryDirectory();
+    final filePath =
+        '${directory.path}/camera_image_${DateTime.now().millisecondsSinceEpoch}.png';
+    final file = File(filePath);
+    await file.writeAsBytes(pngBytes);
+    return file;
+  }
+
+  img.Image _convertNV21ToImage(Uint8List bytes, int width, int height) {
+    final int frameSize = width * height;
+    final img.Image image = img.Image(width: width, height: height);
+
+    for (int j = 0, yp = 0; j < height; j++) {
+      int uvp = frameSize + (j >> 1) * width;
+      int u = 0, v = 0;
+
+      for (int i = 0; i < width; i++, yp++) {
+        int y = (0xff & bytes[yp]) - 16;
+        if (y < 0) y = 0;
+
+        if ((i & 1) == 0) {
+          v = (0xff & bytes[uvp++]) - 128;
+          u = (0xff & bytes[uvp++]) - 128;
+        }
+
+        int y1192 = 1192 * y;
+        int r = (y1192 + 1634 * v);
+        int g = (y1192 - 833 * v - 400 * u);
+        int b = (y1192 + 2066 * u);
+
+        r = (r < 0 ? 0 : (r > 262143 ? 262143 : r)) >> 10;
+        g = (g < 0 ? 0 : (g > 262143 ? 262143 : g)) >> 10;
+        b = (b < 0 ? 0 : (b > 262143 ? 262143 : b)) >> 10;
+
+        image.setPixelRgba(i, j, r, g, b, 255);
+      }
+    }
+    return image;
   }
 
   Future<File> _obtenerFoto() async {
@@ -390,45 +384,34 @@ class _CamaraInicializada extends StatelessWidget {
           ),
           Text('Mantén tu rostro dentro del marco'),
           SizedBox(height: Tamano.t24),
-          Stack(
-            children: [
-              // Cámara con óvalo
-              Transform.scale(
-                scale: 0.65,
-                child: ClipOval(
-                  child: AspectRatio(
-                    aspectRatio: 3 / 4, // Más alto y menos ancho
+          Expanded(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Cámara con óvalo
+                Container(
+                  color: Colors.purple,
+                  child: ClipPath(
+                    clipper: ClipperOvalo(),
                     child: RepaintBoundary(
+                      key: camaraKey,
                       child: CameraPreview(controladorCamara),
                     ),
                   ),
                 ),
-              ),
-              // Líneas de guía
-              Transform.scale(
-                scale: 0.65,
-                child: ClipOval(
-                  child: AspectRatio(
-                    aspectRatio: 3 / 4, // Más alto y menos ancho
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned.fill(
-                            child: Opacity(
-                              opacity: 0.65,
-                              child: Image.asset(Imagenes.mascaraFacialFrontal),
-                            ),
-                          ),
-                        ],
-                      ),
+                // Máscara facial sobre el óvalo
+                SizedBox(
+                  height: 230,
+                  child: Opacity(
+                    opacity: 0.65,
+                    child: Image.asset(
+                      Imagenes.mascaraFacialFrontal,
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           SizedBox(height: Tamano.t24),
           Text('La foto se tomará automáticamente'),
