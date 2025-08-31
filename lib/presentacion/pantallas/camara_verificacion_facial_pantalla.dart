@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:sudamericana_validador_identidad/core/compartido/colores.dart';
 import 'package:sudamericana_validador_identidad/core/compartido/extensiones/dialogos_extension.dart';
 import 'package:sudamericana_validador_identidad/core/compartido/imagenes.dart';
 import 'package:sudamericana_validador_identidad/core/compartido/tamano.dart';
@@ -42,17 +43,18 @@ class _CamaraVerificacionFacialPantallaState extends State<CamaraVerificacionFac
       conversorImagenesRepositorio: ConversorImagenesRepositorioImpl(),
       orientacionFacialEsperada: widget.orientacionFacial,
     );
+
     _camaraCubit.inicializarCamara(
       alProcesarImagen: (image) {
-        // _camaraCubit.state.whenOrNull(
-        //   camaraInicializada: (controladorCamara, camaraTrasera) {
-        //     _reconocimientoFacialCubit.procesarImagenDeCamara(
-        //       imagen: image,
-        //       controladorCamara: controladorCamara,
-        //       camara: camaraTrasera,
-        //     );
-        //   },
-        // );
+        _camaraCubit.state.whenOrNull(
+          camaraInicializada: (controladorCamara, camaraTrasera) {
+            _reconocimientoFacialCubit.procesarImagenDeCamara(
+              imagen: image,
+              controladorCamara: controladorCamara,
+              camara: camaraTrasera,
+            );
+          },
+        );
       },
     );
   }
@@ -112,12 +114,6 @@ class _CamaraVerificacionFacialPantallaState extends State<CamaraVerificacionFac
                           orientacionFacial: widget.orientacionFacial,
                         ),
                       ),
-                      BlocBuilder<ReconocimientoFacialCubit, ReconocimientoFacialState>(
-                        bloc: _reconocimientoFacialCubit,
-                        builder: (context, state) {
-                          return Text(state.contadorVerificacionesCorrectas.toString());
-                        },
-                      ),
                     ],
                   ),
               camaraSinPermisos: () => const Center(child: Text('No tienes permisos para usar la camara')),
@@ -157,37 +153,57 @@ class _CamaraInicializada extends StatelessWidget {
           // },
           // child: Text('Tomar foto'),
           // ),
+          SizedBox(height: Tamano.t32),
           Text(
             orientacionFacial.when(
               izquierda: () => 'Mira a la izquierda',
               derecha: () => 'Mira a la derecha',
               centro: () => 'Mira de frente',
             ),
+            style: TextStyle(color: Colores.textoPrincipal, fontSize: Tamano.t20, fontWeight: FontWeight.bold),
           ),
-          Text('Mantén tu rostro dentro del marco'),
+          Text(
+            'Mantén tu rostro dentro del marco',
+            style: TextStyle(color: Colores.textoPrincipal, fontSize: Tamano.t16),
+          ),
           SizedBox(height: Tamano.t24),
           Expanded(
             child: Stack(
               alignment: Alignment.center,
               children: [
                 // Cámara con óvalo
-                Container(
-                  color: Colors.purple,
+                Transform.scale(
+                  scale: 1.2,
                   child: ClipPath(
                     clipper: ClipperOvalo(),
                     child: RepaintBoundary(key: camaraKey, child: CameraPreview(controladorCamara)),
                   ),
                 ),
                 // Máscara facial sobre el óvalo
-                SizedBox(
-                  height: 230,
-                  child: Opacity(opacity: 0.65, child: Image.asset(Imagenes.mascaraFacialFrontal, fit: BoxFit.cover)),
+                Transform.scale(
+                  scale: 1.2,
+                  child: SizedBox(
+                    height: 230,
+                    child: Opacity(
+                      opacity: 0.65,
+                      child: Image.asset(
+                        orientacionFacial.when(
+                          izquierda: () => Imagenes.mascaraFacialIzquierda,
+                          derecha: () => Imagenes.mascaraFacialDerecha,
+                          centro: () => Imagenes.mascaraFacialFrontal,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
-          SizedBox(height: Tamano.t24),
-          Text('La foto se tomará automáticamente'),
+          Text(
+            'La foto se tomará automáticamente',
+            style: TextStyle(color: Colores.textoPrincipal, fontSize: Tamano.t16),
+          ),
+          SizedBox(height: Tamano.t32),
         ],
       ),
     );

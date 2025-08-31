@@ -11,8 +11,8 @@ class ReconocimientoFacialRepositorioImpl implements ReconocimientoFacialReposit
 
   final double _rotacionHorizontalMinimaIzquierda = 35;
   final double _rotacionHorizontalMinimaDerecha = -35;
-  final double _rotacionHorizontalMinimaCentro = -2;
-  final double _rotacionHorizontalMaximaCentro = 2;
+  final double _rotacionHorizontalMinimaCentro = -3;
+  final double _rotacionHorizontalMaximaCentro = 3;
 
   @override
   Future<ResultadoOrientacionFacial> reconocerOrientacionFacial(ml_kit.InputImage imagenDeEntrada) async {

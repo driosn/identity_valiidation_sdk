@@ -9,4 +9,5 @@ final class Tamano {
   static const double t24 = 24;
   static const double t32 = 32;
   static const double t64 = 64;
+  static const double t90 = 90;
 }

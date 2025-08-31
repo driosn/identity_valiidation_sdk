@@ -21,6 +21,7 @@ extension DialogosExtension on BuildContext {
     showDialog(
       context: this,
       barrierColor: Colores.transparente,
+      barrierDismissible: false,
       builder:
           (context) => Dialog(
             backgroundColor: Colores.fondoDialogo,
@@ -33,6 +34,7 @@ extension DialogosExtension on BuildContext {
     showDialog(
       context: this,
       barrierColor: Colores.transparente,
+      barrierDismissible: false,
       builder:
           (context) => Dialog(
             child: ReconocimientoFacialInfoDialogo(

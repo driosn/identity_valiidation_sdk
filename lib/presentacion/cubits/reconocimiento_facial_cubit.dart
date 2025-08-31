@@ -30,7 +30,7 @@ class ReconocimientoFacialCubit extends Cubit<ReconocimientoFacialState> {
   final ReconocimientoFacialRepositorio _reconocimientoFacialRepositorio;
   final ConversorImagenesRepositorio _conversorImagenesRepositorio;
 
-  final int _numeroDeVerificacionesCorrectasRequeridas = 4;
+  final int _numeroDeVerificacionesCorrectasRequeridas = 5;
 
   void procesarImagen({
     required CameraImage imagenDeCamara,
