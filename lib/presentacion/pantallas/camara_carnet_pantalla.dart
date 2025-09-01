@@ -11,6 +11,7 @@ import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:sudamericana_validador_identidad/core/compartido/tamano.dart';
 import 'package:sudamericana_validador_identidad/data/modelos/orientacion_documento.dart';
+import 'package:sudamericana_validador_identidad/data/repositorios/conversor_imagenes_repositorio_impl.dart';
 import 'package:sudamericana_validador_identidad/data/repositorios/ocr_repositorio_impl.dart';
 import 'package:sudamericana_validador_identidad/data/servicios/ocr_servicio.dart';
 import 'package:sudamericana_validador_identidad/presentacion/cubits/camara_cubit.dart';
@@ -38,6 +39,7 @@ class _CamaraCarnetPantallaState extends State<CamaraCarnetPantalla> {
     _documentoOCRCubit = DocumentoOCRCubit(
       ocrRepositorio: OcrRepositorioImpl(ocrServicio: OcrServicio()),
       orientacionEsperada: widget.orientacionDocumento,
+      conversorImagenesRepositorio: ConversorImagenesRepositorioImpl(),
     );
 
     _camaraCubit.inicializarCamara(
@@ -64,40 +66,22 @@ class _CamaraCarnetPantallaState extends State<CamaraCarnetPantalla> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocListener<DocumentoOCRCubit, DocumentoOCRState>(
-        bloc: _documentoOCRCubit,
-        listener: (context, state) {
-          // print('Input Image: ${state.inputImage}');
-
-          // if (state.inputImage != null) {
-          //   _documentoOCRCubit.procesarImagen(
-          //     imagenDeEntrada: state.inputImage!,
-          //     camara:
-          //         _camaraCubit.state.whenOrNull(
-          //           camaraInicializada:
-          //               (controladorCamara, camaraTrasera) => camaraTrasera,
-          //         )!,
-          //   );
-          // }
+      body: BlocBuilder<CamaraCubit, CamaraState>(
+        bloc: _camaraCubit,
+        builder: (context, state) {
+          return state.when(
+            inicial: () => const _VistaCamaraInicial(),
+            camaraInicializando: () => const _VistaCamaraInicializando(),
+            camaraInicializada:
+                (controladorCamara, camaraTrasera) => _VistaCamaraInicializada(
+                  controladorCamara: controladorCamara,
+                  documentoOCRCubit: _documentoOCRCubit,
+                  orientacionDocumento: widget.orientacionDocumento,
+                ),
+            camaraSinPermisos: () => const _VistaCamaraSinPermisos(),
+            camaraError: (mensaje) => Center(child: Text(mensaje)),
+          );
         },
-        child: BlocBuilder<CamaraCubit, CamaraState>(
-          bloc: _camaraCubit,
-          builder: (context, state) {
-            return state.when(
-              inicial: () => const _VistaCamaraInicial(),
-              camaraInicializando: () => const _VistaCamaraInicializando(),
-              camaraInicializada:
-                  (controladorCamara, camaraTrasera) =>
-                      _VistaCamaraInicializada(
-                        controladorCamara: controladorCamara,
-                        documentoOCRCubit: _documentoOCRCubit,
-                        orientacionDocumento: widget.orientacionDocumento,
-                      ),
-              camaraSinPermisos: () => const _VistaCamaraSinPermisos(),
-              camaraError: (mensaje) => Center(child: Text(mensaje)),
-            );
-          },
-        ),
       ),
     );
   }
@@ -121,11 +105,7 @@ class _VistaCamaraInicializando extends StatelessWidget {
       child: const Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(),
-          SizedBox(height: Tamano.t16),
-          Text('Inicializando cámara'),
-        ],
+        children: [CircularProgressIndicator(), SizedBox(height: Tamano.t16), Text('Inicializando cámara')],
       ),
     );
   }
@@ -146,237 +126,133 @@ class _VistaCamaraInicializada extends StatelessWidget {
   final _camaraKey = GlobalKey();
   final _guiaCamaraKey = GlobalKey();
 
-  final bool _showEdges = false;
-  Offset? topLeftEdge;
-  Offset? topRightEdge;
-  Offset? bottomLeftEdge;
-  Offset? bottomRightEdge;
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       height: double.infinity,
 
-      child: Scaffold(
-        body: Stack(
-          children: [
-            Center(
-              child: RepaintBoundary(
-                key: _camaraKey,
-                child: CameraPreview(controladorCamara),
-              ),
-            ),
+      child: BlocListener<DocumentoOCRCubit, DocumentoOCRState>(
+        bloc: documentoOCRCubit,
+        listenWhen: (previous, current) => previous.estadoProcesamiento != current.estadoProcesamiento,
+        listener: (context, state) {
+          state.estadoProcesamiento.whenOrNull(
+            completado: (resultadoOcr, fotoDocumento) {
+              resultadoOcr.map(
+                carnetComputarizadoAnverso: (_) async {
+                  if (orientacionDocumento is OrientacionDocumentoAnverso) {
+                    final fotoPerfilDocumento = await _captureRect();
+                    if (context.mounted) {
+                      context.read<ValidadorIdentidadCubit>().actualizarFotoPerfilDocumento(fotoPerfilDocumento);
+                      context.read<ValidadorIdentidadCubit>().actualizarDatosValidacionSegunOcr(
+                        resultadoOcr,
+                        fotoDocumento,
+                      );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InformacionPantalla(tipoInformacion: DocumentoReverso()),
+                        ),
+                      );
+                    }
+                  }
+                },
+                carnetComputarizadoReverso: (_) {
+                  if (orientacionDocumento is OrientacionDocumentoReverso) {
+                    context.read<ValidadorIdentidadCubit>().actualizarDatosValidacionSegunOcr(
+                      resultadoOcr,
+                      fotoDocumento,
+                    );
 
-            ///
-            /// Mascara instrucciones
-            ///
-            OrientationBuilder(
-              builder: (BuildContext context, Orientation orientation) {
-                final rotationDegrees =
-                    orientation == Orientation.landscape ? -90.0 : 0.0;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => InformacionPantalla(tipoInformacion: FotoFrontal())),
+                    );
+                    return;
+                  }
+                },
+              );
+            },
+          );
+        },
+        child: Scaffold(
+          body: Stack(
+            children: [
+              Center(child: RepaintBoundary(key: _camaraKey, child: CameraPreview(controladorCamara))),
 
-                return Transform.rotate(
-                  angle: rotationDegrees * math.pi / 180,
-                  child: Column(
-                    children: [
-                      SizedBox(height: Tamano.t64),
-                      SizedBox(
-                        width: double.infinity,
-                        child: const Text(
-                          'Muestra el anverso del carnet',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: Tamano.t20,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: 'SFProText',
+              ///
+              /// Mascara instrucciones
+              ///
+              OrientationBuilder(
+                builder: (BuildContext context, Orientation orientation) {
+                  final rotationDegrees = orientation == Orientation.landscape ? -90.0 : 0.0;
+
+                  return Transform.rotate(
+                    angle: rotationDegrees * math.pi / 180,
+                    child: Column(
+                      children: [
+                        SizedBox(height: Tamano.t64),
+                        SizedBox(
+                          width: double.infinity,
+                          child: const Text(
+                            'Muestra el anverso del carnet',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: Tamano.t20,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'SFProText',
+                            ),
                           ),
                         ),
-                      ),
 
-                      ///
-                      /// Mascara guía de la cámara
-                      ///
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: Tamano.t32,
-                            vertical: Tamano.t16,
-                          ),
-                          child: AspectRatio(
-                            aspectRatio:
-                                0.63, // proporción estándar del documento
-                            child: RepaintBoundary(
-                              key: _guiaCamaraKey,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 2,
+                        ///
+                        /// Mascara guía de la cámara
+                        ///
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: Tamano.t32, vertical: Tamano.t16),
+                            child: AspectRatio(
+                              aspectRatio: 0.63, // proporción estándar del documento
+                              child: RepaintBoundary(
+                                key: _guiaCamaraKey,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.white, width: 2),
+                                    color: Colors.transparent,
                                   ),
-                                  color: Colors.transparent,
+                                  width: MediaQuery.of(context).size.width * 0.9,
                                 ),
-                                width: MediaQuery.of(context).size.width * 0.9,
                               ),
                             ),
                           ),
                         ),
-                      ),
 
-                      SizedBox(height: Tamano.t16),
+                        SizedBox(height: Tamano.t16),
 
-                      ///
-                      /// Mascara texto de la foto
-                      ///
-                      SizedBox(
-                        width: double.infinity,
-                        child: const Text(
-                          'La foto se tomará automáticamente',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: Tamano.t20,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: 'SFProText',
+                        ///
+                        /// Mascara texto de la foto
+                        ///
+                        SizedBox(
+                          width: double.infinity,
+                          child: const Text(
+                            'La foto se tomará automáticamente',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: Tamano.t20,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'SFProText',
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-
-            Positioned.fill(
-              child: BlocConsumer<DocumentoOCRCubit, DocumentoOCRState>(
-                bloc: documentoOCRCubit,
-                listenWhen:
-                    (previous, current) =>
-                        previous.estadoProcesamiento !=
-                        current.estadoProcesamiento,
-                listener: (context, state) {
-                  state.estadoProcesamiento.whenOrNull(
-                    completado: (resultadoOcr) {
-                      resultadoOcr.when(
-                        carnetComputarizadoAnverso: (
-                          numero,
-                          emision,
-                          expiracion,
-                          tipoDocumento,
-                        ) async {
-                          if (orientacionDocumento
-                              is OrientacionDocumentoAnverso) {
-                            final foto = await _captureRect();
-                            context
-                                .read<ValidadorIdentidadCubit>()
-                                .actualizarDatosValidacionSegunOcr(
-                                  resultadoOcr,
-                                );
-                            context
-                                .read<ValidadorIdentidadCubit>()
-                                .actualizarFoto(foto);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => InformacionPantalla(
-                                      tipoInformacion: DocumentoReverso(),
-                                    ),
-                              ),
-                            );
-                          }
-                        },
-                        carnetComputarizadoReverso: (nombre, tipoDocumento) {
-                          if (orientacionDocumento
-                              is OrientacionDocumentoReverso) {
-                            context
-                                .read<ValidadorIdentidadCubit>()
-                                .actualizarDatosValidacionSegunOcr(
-                                  resultadoOcr,
-                                );
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => InformacionPantalla(
-                                      tipoInformacion: FotoFrontal(),
-                                    ),
-                              ),
-                            );
-                            return;
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => Scaffold(
-                                      body: Center(
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              'Nombre: ${context.read<ValidadorIdentidadCubit>().state.datosValidacion.nombre}',
-                                            ),
-                                            Text(
-                                              'Número: ${context.read<ValidadorIdentidadCubit>().state.datosValidacion.numero}',
-                                            ),
-                                            Text(
-                                              'Emisión: ${context.read<ValidadorIdentidadCubit>().state.datosValidacion.emision}',
-                                            ),
-                                            Text(
-                                              'Expiración: ${context.read<ValidadorIdentidadCubit>().state.datosValidacion.expiracion}',
-                                            ),
-                                            Image.file(
-                                              File(
-                                                context
-                                                    .read<
-                                                      ValidadorIdentidadCubit
-                                                    >()
-                                                    .state
-                                                    .datosValidacion
-                                                    .fotoTempSrc,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                              ),
-                            );
-                          }
-                        },
-                      );
-                    },
+                      ],
+                    ),
                   );
                 },
-                builder: (context, state) {
-                  return state.customPaint ?? const SizedBox.shrink();
-                },
-              ),
-            ),
-
-            if (_showEdges) ...[
-              Transform.translate(
-                offset: Offset(topLeftEdge!.dx - 5, topLeftEdge!.dy - 5),
-                child: Container(width: 10, height: 10, color: Colors.purple),
-              ),
-              Transform.translate(
-                offset: Offset(topRightEdge!.dx - 5, topRightEdge!.dy - 5),
-                child: Container(width: 10, height: 10, color: Colors.purple),
-              ),
-              Transform.translate(
-                offset: Offset(bottomLeftEdge!.dx - 5, bottomLeftEdge!.dy - 5),
-                child: Container(width: 10, height: 10, color: Colors.purple),
-              ),
-              Transform.translate(
-                offset: Offset(
-                  bottomRightEdge!.dx - 5,
-                  bottomRightEdge!.dy - 5,
-                ),
-                child: Container(width: 10, height: 10, color: Colors.purple),
               ),
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -387,8 +263,7 @@ class _VistaCamaraInicializada extends StatelessWidget {
       await Future.delayed(Duration(milliseconds: 100));
 
       final RenderRepaintBoundary? boundary =
-          _guiaCamaraKey.currentContext?.findRenderObject()
-              as RenderRepaintBoundary?;
+          _guiaCamaraKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
 
       if (boundary == null) {
         throw Exception('No se pudo obtener el RenderRepaintBoundary');
@@ -404,8 +279,7 @@ class _VistaCamaraInicializada extends StatelessWidget {
       final pngBytes = byteData.buffer.asUint8List();
 
       final directory = await getTemporaryDirectory();
-      final filePath =
-          '${directory.path}/payment_detail_${DateTime.now().millisecondsSinceEpoch}.png';
+      final filePath = '${directory.path}/payment_detail_${DateTime.now().millisecondsSinceEpoch}.png';
 
       final file = File(filePath);
       await file.writeAsBytes(pngBytes);
@@ -420,12 +294,9 @@ class _VistaCamaraInicializada extends StatelessWidget {
     try {
       await Future.delayed(Duration(milliseconds: 100));
 
-      final RenderRepaintBoundary? boundary =
-          _camaraKey.currentContext?.findRenderObject()
-              as RenderRepaintBoundary?;
+      final RenderRepaintBoundary? boundary = _camaraKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
 
-      final renderBox =
-          _guiaCamaraKey.currentContext!.findRenderObject() as RenderBox;
+      final renderBox = _guiaCamaraKey.currentContext!.findRenderObject() as RenderBox;
 
       // Posición en coordenadas absolutas en pantalla
       final position = renderBox.localToGlobal(Offset.zero);
@@ -458,11 +329,27 @@ class _VistaCamaraInicializada extends StatelessWidget {
         height: size.height.toInt() ~/ 2,
       );
 
-      Uint8List croppedBytes = Uint8List.fromList(img.encodePng(cropped));
+      // Rotar la imagen 90 grados a la izquierda
+      img.Image rotated = img.copyRotate(cropped, angle: -90);
+
+      // Obtener el cuadrante superior derecho (arriba a la derecha)
+      final int width = rotated.width;
+      final int height = rotated.height;
+      final int quadrantWidth = width ~/ 2;
+      final int quadrantHeight = height ~/ 2;
+
+      img.Image topRightQuadrant = img.copyCrop(
+        rotated,
+        x: quadrantWidth, // Empezar desde la mitad del ancho (derecha)
+        y: 0, // Empezar desde arriba
+        width: quadrantWidth,
+        height: quadrantHeight,
+      );
+
+      Uint8List croppedBytes = Uint8List.fromList(img.encodePng(topRightQuadrant));
 
       final directory = await getTemporaryDirectory();
-      final filePath =
-          '${directory.path}/payment_detail_${DateTime.now().millisecondsSinceEpoch}.png';
+      final filePath = '${directory.path}/payment_detail_${DateTime.now().millisecondsSinceEpoch}.png';
 
       final file = File(filePath);
       await file.writeAsBytes(croppedBytes);

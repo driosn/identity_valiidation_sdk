@@ -21,8 +21,12 @@ mixin _$DatosValidacion {
   String get numero => throw _privateConstructorUsedError;
   String get emision => throw _privateConstructorUsedError;
   String get expiracion => throw _privateConstructorUsedError;
-  String get fotoTempSrc => throw _privateConstructorUsedError;
+  String get fotoPerfilDocumentoTempSrc => throw _privateConstructorUsedError;
   String get firmaTempSrc => throw _privateConstructorUsedError;
+  String get fotoDocumentoAnversoTempSrc => throw _privateConstructorUsedError;
+  String get fotoDocumentoReversoTempSrc => throw _privateConstructorUsedError;
+  String get fotoSelfieTempSrc => throw _privateConstructorUsedError;
+  double get similaridad => throw _privateConstructorUsedError;
 
   /// Create a copy of DatosValidacion
   /// with the given fields replaced by the non-null parameter values.
@@ -43,8 +47,12 @@ abstract class $DatosValidacionCopyWith<$Res> {
     String numero,
     String emision,
     String expiracion,
-    String fotoTempSrc,
+    String fotoPerfilDocumentoTempSrc,
     String firmaTempSrc,
+    String fotoDocumentoAnversoTempSrc,
+    String fotoDocumentoReversoTempSrc,
+    String fotoSelfieTempSrc,
+    double similaridad,
   });
 }
 
@@ -67,8 +75,12 @@ class _$DatosValidacionCopyWithImpl<$Res, $Val extends DatosValidacion>
     Object? numero = null,
     Object? emision = null,
     Object? expiracion = null,
-    Object? fotoTempSrc = null,
+    Object? fotoPerfilDocumentoTempSrc = null,
     Object? firmaTempSrc = null,
+    Object? fotoDocumentoAnversoTempSrc = null,
+    Object? fotoDocumentoReversoTempSrc = null,
+    Object? fotoSelfieTempSrc = null,
+    Object? similaridad = null,
   }) {
     return _then(
       _value.copyWith(
@@ -92,16 +104,36 @@ class _$DatosValidacionCopyWithImpl<$Res, $Val extends DatosValidacion>
                     ? _value.expiracion
                     : expiracion // ignore: cast_nullable_to_non_nullable
                         as String,
-            fotoTempSrc:
-                null == fotoTempSrc
-                    ? _value.fotoTempSrc
-                    : fotoTempSrc // ignore: cast_nullable_to_non_nullable
+            fotoPerfilDocumentoTempSrc:
+                null == fotoPerfilDocumentoTempSrc
+                    ? _value.fotoPerfilDocumentoTempSrc
+                    : fotoPerfilDocumentoTempSrc // ignore: cast_nullable_to_non_nullable
                         as String,
             firmaTempSrc:
                 null == firmaTempSrc
                     ? _value.firmaTempSrc
                     : firmaTempSrc // ignore: cast_nullable_to_non_nullable
                         as String,
+            fotoDocumentoAnversoTempSrc:
+                null == fotoDocumentoAnversoTempSrc
+                    ? _value.fotoDocumentoAnversoTempSrc
+                    : fotoDocumentoAnversoTempSrc // ignore: cast_nullable_to_non_nullable
+                        as String,
+            fotoDocumentoReversoTempSrc:
+                null == fotoDocumentoReversoTempSrc
+                    ? _value.fotoDocumentoReversoTempSrc
+                    : fotoDocumentoReversoTempSrc // ignore: cast_nullable_to_non_nullable
+                        as String,
+            fotoSelfieTempSrc:
+                null == fotoSelfieTempSrc
+                    ? _value.fotoSelfieTempSrc
+                    : fotoSelfieTempSrc // ignore: cast_nullable_to_non_nullable
+                        as String,
+            similaridad:
+                null == similaridad
+                    ? _value.similaridad
+                    : similaridad // ignore: cast_nullable_to_non_nullable
+                        as double,
           )
           as $Val,
     );
@@ -122,8 +154,12 @@ abstract class _$$DatosValidacionImplCopyWith<$Res>
     String numero,
     String emision,
     String expiracion,
-    String fotoTempSrc,
+    String fotoPerfilDocumentoTempSrc,
     String firmaTempSrc,
+    String fotoDocumentoAnversoTempSrc,
+    String fotoDocumentoReversoTempSrc,
+    String fotoSelfieTempSrc,
+    double similaridad,
   });
 }
 
@@ -145,8 +181,12 @@ class __$$DatosValidacionImplCopyWithImpl<$Res>
     Object? numero = null,
     Object? emision = null,
     Object? expiracion = null,
-    Object? fotoTempSrc = null,
+    Object? fotoPerfilDocumentoTempSrc = null,
     Object? firmaTempSrc = null,
+    Object? fotoDocumentoAnversoTempSrc = null,
+    Object? fotoDocumentoReversoTempSrc = null,
+    Object? fotoSelfieTempSrc = null,
+    Object? similaridad = null,
   }) {
     return _then(
       _$DatosValidacionImpl(
@@ -170,16 +210,36 @@ class __$$DatosValidacionImplCopyWithImpl<$Res>
                 ? _value.expiracion
                 : expiracion // ignore: cast_nullable_to_non_nullable
                     as String,
-        fotoTempSrc:
-            null == fotoTempSrc
-                ? _value.fotoTempSrc
-                : fotoTempSrc // ignore: cast_nullable_to_non_nullable
+        fotoPerfilDocumentoTempSrc:
+            null == fotoPerfilDocumentoTempSrc
+                ? _value.fotoPerfilDocumentoTempSrc
+                : fotoPerfilDocumentoTempSrc // ignore: cast_nullable_to_non_nullable
                     as String,
         firmaTempSrc:
             null == firmaTempSrc
                 ? _value.firmaTempSrc
                 : firmaTempSrc // ignore: cast_nullable_to_non_nullable
                     as String,
+        fotoDocumentoAnversoTempSrc:
+            null == fotoDocumentoAnversoTempSrc
+                ? _value.fotoDocumentoAnversoTempSrc
+                : fotoDocumentoAnversoTempSrc // ignore: cast_nullable_to_non_nullable
+                    as String,
+        fotoDocumentoReversoTempSrc:
+            null == fotoDocumentoReversoTempSrc
+                ? _value.fotoDocumentoReversoTempSrc
+                : fotoDocumentoReversoTempSrc // ignore: cast_nullable_to_non_nullable
+                    as String,
+        fotoSelfieTempSrc:
+            null == fotoSelfieTempSrc
+                ? _value.fotoSelfieTempSrc
+                : fotoSelfieTempSrc // ignore: cast_nullable_to_non_nullable
+                    as String,
+        similaridad:
+            null == similaridad
+                ? _value.similaridad
+                : similaridad // ignore: cast_nullable_to_non_nullable
+                    as double,
       ),
     );
   }
@@ -193,8 +253,12 @@ class _$DatosValidacionImpl implements _DatosValidacion {
     this.numero = '',
     this.emision = '',
     this.expiracion = '',
-    this.fotoTempSrc = '',
+    this.fotoPerfilDocumentoTempSrc = '',
     this.firmaTempSrc = '',
+    this.fotoDocumentoAnversoTempSrc = '',
+    this.fotoDocumentoReversoTempSrc = '',
+    this.fotoSelfieTempSrc = '',
+    this.similaridad = 0,
   });
 
   @override
@@ -211,14 +275,26 @@ class _$DatosValidacionImpl implements _DatosValidacion {
   final String expiracion;
   @override
   @JsonKey()
-  final String fotoTempSrc;
+  final String fotoPerfilDocumentoTempSrc;
   @override
   @JsonKey()
   final String firmaTempSrc;
+  @override
+  @JsonKey()
+  final String fotoDocumentoAnversoTempSrc;
+  @override
+  @JsonKey()
+  final String fotoDocumentoReversoTempSrc;
+  @override
+  @JsonKey()
+  final String fotoSelfieTempSrc;
+  @override
+  @JsonKey()
+  final double similaridad;
 
   @override
   String toString() {
-    return 'DatosValidacion(nombre: $nombre, numero: $numero, emision: $emision, expiracion: $expiracion, fotoTempSrc: $fotoTempSrc, firmaTempSrc: $firmaTempSrc)';
+    return 'DatosValidacion(nombre: $nombre, numero: $numero, emision: $emision, expiracion: $expiracion, fotoPerfilDocumentoTempSrc: $fotoPerfilDocumentoTempSrc, firmaTempSrc: $firmaTempSrc, fotoDocumentoAnversoTempSrc: $fotoDocumentoAnversoTempSrc, fotoDocumentoReversoTempSrc: $fotoDocumentoReversoTempSrc, fotoSelfieTempSrc: $fotoSelfieTempSrc, similaridad: $similaridad)';
   }
 
   @override
@@ -231,10 +307,30 @@ class _$DatosValidacionImpl implements _DatosValidacion {
             (identical(other.emision, emision) || other.emision == emision) &&
             (identical(other.expiracion, expiracion) ||
                 other.expiracion == expiracion) &&
-            (identical(other.fotoTempSrc, fotoTempSrc) ||
-                other.fotoTempSrc == fotoTempSrc) &&
+            (identical(
+                  other.fotoPerfilDocumentoTempSrc,
+                  fotoPerfilDocumentoTempSrc,
+                ) ||
+                other.fotoPerfilDocumentoTempSrc ==
+                    fotoPerfilDocumentoTempSrc) &&
             (identical(other.firmaTempSrc, firmaTempSrc) ||
-                other.firmaTempSrc == firmaTempSrc));
+                other.firmaTempSrc == firmaTempSrc) &&
+            (identical(
+                  other.fotoDocumentoAnversoTempSrc,
+                  fotoDocumentoAnversoTempSrc,
+                ) ||
+                other.fotoDocumentoAnversoTempSrc ==
+                    fotoDocumentoAnversoTempSrc) &&
+            (identical(
+                  other.fotoDocumentoReversoTempSrc,
+                  fotoDocumentoReversoTempSrc,
+                ) ||
+                other.fotoDocumentoReversoTempSrc ==
+                    fotoDocumentoReversoTempSrc) &&
+            (identical(other.fotoSelfieTempSrc, fotoSelfieTempSrc) ||
+                other.fotoSelfieTempSrc == fotoSelfieTempSrc) &&
+            (identical(other.similaridad, similaridad) ||
+                other.similaridad == similaridad));
   }
 
   @override
@@ -244,8 +340,12 @@ class _$DatosValidacionImpl implements _DatosValidacion {
     numero,
     emision,
     expiracion,
-    fotoTempSrc,
+    fotoPerfilDocumentoTempSrc,
     firmaTempSrc,
+    fotoDocumentoAnversoTempSrc,
+    fotoDocumentoReversoTempSrc,
+    fotoSelfieTempSrc,
+    similaridad,
   );
 
   /// Create a copy of DatosValidacion
@@ -266,8 +366,12 @@ abstract class _DatosValidacion implements DatosValidacion {
     final String numero,
     final String emision,
     final String expiracion,
-    final String fotoTempSrc,
+    final String fotoPerfilDocumentoTempSrc,
     final String firmaTempSrc,
+    final String fotoDocumentoAnversoTempSrc,
+    final String fotoDocumentoReversoTempSrc,
+    final String fotoSelfieTempSrc,
+    final double similaridad,
   }) = _$DatosValidacionImpl;
 
   @override
@@ -279,9 +383,17 @@ abstract class _DatosValidacion implements DatosValidacion {
   @override
   String get expiracion;
   @override
-  String get fotoTempSrc;
+  String get fotoPerfilDocumentoTempSrc;
   @override
   String get firmaTempSrc;
+  @override
+  String get fotoDocumentoAnversoTempSrc;
+  @override
+  String get fotoDocumentoReversoTempSrc;
+  @override
+  String get fotoSelfieTempSrc;
+  @override
+  double get similaridad;
 
   /// Create a copy of DatosValidacion
   /// with the given fields replaced by the non-null parameter values.

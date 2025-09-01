@@ -37,6 +37,7 @@ extension DialogosExtension on BuildContext {
       barrierDismissible: false,
       builder:
           (context) => Dialog(
+            backgroundColor: Colores.fondoDialogo,
             child: ReconocimientoFacialInfoDialogo(
               orientacionFacial: OrientacionFacial.centro(),
               mostrarErrorEnVezDeOrientacion: true,

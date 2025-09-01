@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +14,8 @@ import 'package:sudamericana_validador_identidad/data/repositorios/reconocimient
 import 'package:sudamericana_validador_identidad/presentacion/clippers/clipper_ovalo.dart';
 import 'package:sudamericana_validador_identidad/presentacion/cubits/camara_cubit.dart';
 import 'package:sudamericana_validador_identidad/presentacion/cubits/reconocimiento_facial_cubit.dart';
+import 'package:sudamericana_validador_identidad/presentacion/cubits/validador_identidad_cubit.dart';
+import 'package:sudamericana_validador_identidad/presentacion/cubits/verificador_similitud_cubit.dart';
 
 class CamaraVerificacionFacialPantalla extends StatefulWidget {
   const CamaraVerificacionFacialPantalla({super.key, required this.orientacionFacial});
@@ -25,6 +29,7 @@ class CamaraVerificacionFacialPantalla extends StatefulWidget {
 class _CamaraVerificacionFacialPantallaState extends State<CamaraVerificacionFacialPantalla> {
   final CamaraCubit _camaraCubit = CamaraCubit(direccionCamara: CameraLensDirection.front);
   late final ReconocimientoFacialCubit _reconocimientoFacialCubit;
+  late final VerificadorSimilitudCubit _verificadorSimilitudCubit;
 
   final camaraKey = GlobalKey();
 
@@ -43,6 +48,8 @@ class _CamaraVerificacionFacialPantallaState extends State<CamaraVerificacionFac
       conversorImagenesRepositorio: ConversorImagenesRepositorioImpl(),
       orientacionFacialEsperada: widget.orientacionFacial,
     );
+
+    _verificadorSimilitudCubit = VerificadorSimilitudCubit();
 
     _camaraCubit.inicializarCamara(
       alProcesarImagen: (image) {
@@ -68,36 +75,101 @@ class _CamaraVerificacionFacialPantallaState extends State<CamaraVerificacionFac
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.mostrarDialogoReconocimientoFacialInfo(widget.orientacionFacial);
-        },
-      ),
-      body: BlocListener<ReconocimientoFacialCubit, ReconocimientoFacialState>(
-        bloc: _reconocimientoFacialCubit,
-        listenWhen: (previous, current) => previous.estadoProcesamiento != current.estadoProcesamiento,
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<ReconocimientoFacialCubit, ReconocimientoFacialState>(
+            bloc: _reconocimientoFacialCubit,
+            listenWhen: (previous, current) => previous.estadoProcesamiento != current.estadoProcesamiento,
 
-        listener: (context, state) {
-          state.estadoProcesamiento.whenOrNull(
-            completado: (fotoVerificacionFacial) {
-              // showDialog(context: context, builder: (context) => Dialog(child: Image.file(fotoVerificacionFacial)));
+            listener: (context, state) {
+              ///
+              /// Verificador Similitud
+              ///
+              ///
+              widget.orientacionFacial.whenOrNull(
+                centro: () {
+                  state.estadoProcesamiento.whenOrNull(
+                    completado: (fotoVerificacionFacial) {
+                      final fotoPerfilDocumento =
+                          context.read<ValidadorIdentidadCubit>().state.datosValidacion.fotoPerfilDocumentoTempSrc;
+                      context.read<ValidadorIdentidadCubit>().actualizarFotoSelfie(fotoVerificacionFacial);
 
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => widget.orientacionFacial.when(
-                        izquierda:
-                            () => Scaffold(body: Center(child: Text('Verificacion Facial realizada correctamente'))),
-                        derecha:
-                            () => CamaraVerificacionFacialPantalla(orientacionFacial: OrientacionFacial.izquierda()),
-                        centro: () => CamaraVerificacionFacialPantalla(orientacionFacial: OrientacionFacial.derecha()),
+                      _verificadorSimilitudCubit.verificarSiEsLaMismaPersona(
+                        imagenA: File(fotoPerfilDocumento),
+                        imagenB: fotoVerificacionFacial,
+                      );
+                    },
+                  );
+                },
+              );
+
+              ///
+              /// Navegacion sin realizar Verificacion de Similitud
+              ///
+              state.estadoProcesamiento.whenOrNull(
+                completado: (fotoVerificacionFacial) {
+                  bool irALaSiguientePantalla = false;
+                  widget.orientacionFacial.maybeWhen(
+                    izquierda: () => irALaSiguientePantalla = true,
+                    derecha: () => irALaSiguientePantalla = true,
+                    orElse: () => false,
+                  );
+                  if (irALaSiguientePantalla) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => widget.orientacionFacial.when(
+                              izquierda: () {
+                                context.read<ValidadorIdentidadCubit>().emitirEstadoValidacion(
+                                  EstadoValidacion.validado(validacionExitosa: true),
+                                );
+                                return Scaffold(
+                                  body: Center(child: Text('Verificacion Facial realizada correctamente')),
+                                );
+                              },
+                              derecha:
+                                  () => CamaraVerificacionFacialPantalla(
+                                    orientacionFacial: OrientacionFacial.izquierda(),
+                                  ),
+                              centro:
+                                  () =>
+                                      CamaraVerificacionFacialPantalla(orientacionFacial: OrientacionFacial.derecha()),
+                            ),
                       ),
-                ),
+                    );
+                  }
+                },
               );
             },
-          );
-        },
+          ),
+          BlocListener<VerificadorSimilitudCubit, VerificadorSimilitudState>(
+            bloc: _verificadorSimilitudCubit,
+            listener: (context, state) {
+              state.whenOrNull(
+                resultado: (esLaMismaPersona, similaridad, imagenA, imagenB) {
+                  context.read<ValidadorIdentidadCubit>().actualizarSimilaridad(similaridad);
+
+                  if (esLaMismaPersona) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) =>
+                                const CamaraVerificacionFacialPantalla(orientacionFacial: OrientacionFacial.derecha()),
+                      ),
+                    );
+                  } else {
+                    // context.mostrarDialogoReconocimientoFacialInfoError();
+                    context.read<ValidadorIdentidadCubit>().emitirEstadoValidacion(
+                      EstadoValidacion.validado(validacionExitosa: false),
+                    );
+                  }
+                },
+              );
+            },
+          ),
+        ],
         child: BlocBuilder<CamaraCubit, CamaraState>(
           bloc: _camaraCubit,
           builder: (context, state) {

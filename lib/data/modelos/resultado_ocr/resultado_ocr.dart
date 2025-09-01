@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:sudamericana_validador_identidad/data/modelos/orientacion_documento.dart';
-import 'package:sudamericana_validador_identidad/data/modelos/resultado_tipo_documento.dart';
 
 part 'resultado_ocr.freezed.dart';
 

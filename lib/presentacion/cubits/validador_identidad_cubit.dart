@@ -10,35 +10,47 @@ part 'validador_identidad_cubit.freezed.dart';
 class ValidadorIdentidadCubit extends Cubit<ValidadorIdentidadState> {
   ValidadorIdentidadCubit() : super(const ValidadorIdentidadState());
 
-  void actualizarDatosValidacionSegunOcr(ResultadoOcr resultadoOcr) {
+  void actualizarDatosValidacionSegunOcr(ResultadoOcr resultadoOcr, File fotoDocumento) {
     resultadoOcr.when(
-      carnetComputarizadoAnverso: (numero, emision, expiracion, tipoDocumento) {
+      carnetComputarizadoAnverso: (String numero, String emision, String expiracion, _) {
         emit(
           state.copyWith(
             datosValidacion: state.datosValidacion.copyWith(
               numero: numero,
               emision: emision,
               expiracion: expiracion,
+              fotoDocumentoAnversoTempSrc: fotoDocumento.path,
             ),
           ),
         );
       },
-      carnetComputarizadoReverso: (nombre, tipoDocumento) {
+      carnetComputarizadoReverso: (String nombre, _) {
         emit(
           state.copyWith(
-            datosValidacion: state.datosValidacion.copyWith(nombre: nombre),
+            datosValidacion: state.datosValidacion.copyWith(
+              nombre: nombre,
+              fotoDocumentoReversoTempSrc: fotoDocumento.path,
+            ),
           ),
         );
       },
     );
   }
 
-  void actualizarFoto(File file) {
-    emit(
-      state.copyWith(
-        datosValidacion: state.datosValidacion.copyWith(fotoTempSrc: file.path),
-      ),
-    );
+  void actualizarFotoPerfilDocumento(File file) {
+    emit(state.copyWith(datosValidacion: state.datosValidacion.copyWith(fotoPerfilDocumentoTempSrc: file.path)));
+  }
+
+  void actualizarFotoSelfie(File file) {
+    emit(state.copyWith(datosValidacion: state.datosValidacion.copyWith(fotoSelfieTempSrc: file.path)));
+  }
+
+  void actualizarSimilaridad(double similaridad) {
+    emit(state.copyWith(datosValidacion: state.datosValidacion.copyWith(similaridad: similaridad)));
+  }
+
+  void emitirEstadoValidacion(EstadoValidacion estadoValidacion) {
+    emit(state.copyWith(estadoValidacion: estadoValidacion));
   }
 }
 
@@ -46,5 +58,14 @@ class ValidadorIdentidadCubit extends Cubit<ValidadorIdentidadState> {
 class ValidadorIdentidadState with _$ValidadorIdentidadState {
   const factory ValidadorIdentidadState({
     @Default(DatosValidacion()) DatosValidacion datosValidacion,
+    @Default(EstadoValidacion.inicial()) EstadoValidacion estadoValidacion,
   }) = _ValidadorIdentidadState;
+}
+
+@freezed
+class EstadoValidacion with _$EstadoValidacion {
+  const factory EstadoValidacion.inicial() = Inicial;
+  const factory EstadoValidacion.validando() = Validando;
+  const factory EstadoValidacion.validado({required bool validacionExitosa}) = Validado;
+  const factory EstadoValidacion.error() = Error;
 }

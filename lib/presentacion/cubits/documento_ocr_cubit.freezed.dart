@@ -326,19 +326,21 @@ mixin _$EstadoProcesamiento {
   TResult when<TResult extends Object?>({
     required TResult Function() procesando,
     required TResult Function() noProcesando,
-    required TResult Function(ResultadoOcr resultadoOcr) completado,
+    required TResult Function(ResultadoOcr resultadoOcr, File fotoDocumento)
+    completado,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? procesando,
     TResult? Function()? noProcesando,
-    TResult? Function(ResultadoOcr resultadoOcr)? completado,
+    TResult? Function(ResultadoOcr resultadoOcr, File fotoDocumento)?
+    completado,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? procesando,
     TResult Function()? noProcesando,
-    TResult Function(ResultadoOcr resultadoOcr)? completado,
+    TResult Function(ResultadoOcr resultadoOcr, File fotoDocumento)? completado,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -436,7 +438,8 @@ class _$ProcesandoImpl with DiagnosticableTreeMixin implements _Procesando {
   TResult when<TResult extends Object?>({
     required TResult Function() procesando,
     required TResult Function() noProcesando,
-    required TResult Function(ResultadoOcr resultadoOcr) completado,
+    required TResult Function(ResultadoOcr resultadoOcr, File fotoDocumento)
+    completado,
   }) {
     return procesando();
   }
@@ -446,7 +449,8 @@ class _$ProcesandoImpl with DiagnosticableTreeMixin implements _Procesando {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? procesando,
     TResult? Function()? noProcesando,
-    TResult? Function(ResultadoOcr resultadoOcr)? completado,
+    TResult? Function(ResultadoOcr resultadoOcr, File fotoDocumento)?
+    completado,
   }) {
     return procesando?.call();
   }
@@ -456,7 +460,7 @@ class _$ProcesandoImpl with DiagnosticableTreeMixin implements _Procesando {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? procesando,
     TResult Function()? noProcesando,
-    TResult Function(ResultadoOcr resultadoOcr)? completado,
+    TResult Function(ResultadoOcr resultadoOcr, File fotoDocumento)? completado,
     required TResult orElse(),
   }) {
     if (procesando != null) {
@@ -556,7 +560,8 @@ class _$NoProcesandoImpl with DiagnosticableTreeMixin implements _NoProcesando {
   TResult when<TResult extends Object?>({
     required TResult Function() procesando,
     required TResult Function() noProcesando,
-    required TResult Function(ResultadoOcr resultadoOcr) completado,
+    required TResult Function(ResultadoOcr resultadoOcr, File fotoDocumento)
+    completado,
   }) {
     return noProcesando();
   }
@@ -566,7 +571,8 @@ class _$NoProcesandoImpl with DiagnosticableTreeMixin implements _NoProcesando {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? procesando,
     TResult? Function()? noProcesando,
-    TResult? Function(ResultadoOcr resultadoOcr)? completado,
+    TResult? Function(ResultadoOcr resultadoOcr, File fotoDocumento)?
+    completado,
   }) {
     return noProcesando?.call();
   }
@@ -576,7 +582,7 @@ class _$NoProcesandoImpl with DiagnosticableTreeMixin implements _NoProcesando {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? procesando,
     TResult Function()? noProcesando,
-    TResult Function(ResultadoOcr resultadoOcr)? completado,
+    TResult Function(ResultadoOcr resultadoOcr, File fotoDocumento)? completado,
     required TResult orElse(),
   }) {
     if (noProcesando != null) {
@@ -631,7 +637,7 @@ abstract class _$$CompletadoImplCopyWith<$Res> {
     $Res Function(_$CompletadoImpl) then,
   ) = __$$CompletadoImplCopyWithImpl<$Res>;
   @useResult
-  $Res call({ResultadoOcr resultadoOcr});
+  $Res call({ResultadoOcr resultadoOcr, File fotoDocumento});
 
   $ResultadoOcrCopyWith<$Res> get resultadoOcr;
 }
@@ -649,7 +655,7 @@ class __$$CompletadoImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? resultadoOcr = null}) {
+  $Res call({Object? resultadoOcr = null, Object? fotoDocumento = null}) {
     return _then(
       _$CompletadoImpl(
         resultadoOcr:
@@ -657,6 +663,11 @@ class __$$CompletadoImplCopyWithImpl<$Res>
                 ? _value.resultadoOcr
                 : resultadoOcr // ignore: cast_nullable_to_non_nullable
                     as ResultadoOcr,
+        fotoDocumento:
+            null == fotoDocumento
+                ? _value.fotoDocumento
+                : fotoDocumento // ignore: cast_nullable_to_non_nullable
+                    as File,
       ),
     );
   }
@@ -675,14 +686,19 @@ class __$$CompletadoImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$CompletadoImpl with DiagnosticableTreeMixin implements _Completado {
-  const _$CompletadoImpl({required this.resultadoOcr});
+  const _$CompletadoImpl({
+    required this.resultadoOcr,
+    required this.fotoDocumento,
+  });
 
   @override
   final ResultadoOcr resultadoOcr;
+  @override
+  final File fotoDocumento;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'EstadoProcesamiento.completado(resultadoOcr: $resultadoOcr)';
+    return 'EstadoProcesamiento.completado(resultadoOcr: $resultadoOcr, fotoDocumento: $fotoDocumento)';
   }
 
   @override
@@ -690,7 +706,8 @@ class _$CompletadoImpl with DiagnosticableTreeMixin implements _Completado {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'EstadoProcesamiento.completado'))
-      ..add(DiagnosticsProperty('resultadoOcr', resultadoOcr));
+      ..add(DiagnosticsProperty('resultadoOcr', resultadoOcr))
+      ..add(DiagnosticsProperty('fotoDocumento', fotoDocumento));
   }
 
   @override
@@ -699,11 +716,13 @@ class _$CompletadoImpl with DiagnosticableTreeMixin implements _Completado {
         (other.runtimeType == runtimeType &&
             other is _$CompletadoImpl &&
             (identical(other.resultadoOcr, resultadoOcr) ||
-                other.resultadoOcr == resultadoOcr));
+                other.resultadoOcr == resultadoOcr) &&
+            (identical(other.fotoDocumento, fotoDocumento) ||
+                other.fotoDocumento == fotoDocumento));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, resultadoOcr);
+  int get hashCode => Object.hash(runtimeType, resultadoOcr, fotoDocumento);
 
   /// Create a copy of EstadoProcesamiento
   /// with the given fields replaced by the non-null parameter values.
@@ -718,9 +737,10 @@ class _$CompletadoImpl with DiagnosticableTreeMixin implements _Completado {
   TResult when<TResult extends Object?>({
     required TResult Function() procesando,
     required TResult Function() noProcesando,
-    required TResult Function(ResultadoOcr resultadoOcr) completado,
+    required TResult Function(ResultadoOcr resultadoOcr, File fotoDocumento)
+    completado,
   }) {
-    return completado(resultadoOcr);
+    return completado(resultadoOcr, fotoDocumento);
   }
 
   @override
@@ -728,9 +748,10 @@ class _$CompletadoImpl with DiagnosticableTreeMixin implements _Completado {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? procesando,
     TResult? Function()? noProcesando,
-    TResult? Function(ResultadoOcr resultadoOcr)? completado,
+    TResult? Function(ResultadoOcr resultadoOcr, File fotoDocumento)?
+    completado,
   }) {
-    return completado?.call(resultadoOcr);
+    return completado?.call(resultadoOcr, fotoDocumento);
   }
 
   @override
@@ -738,11 +759,11 @@ class _$CompletadoImpl with DiagnosticableTreeMixin implements _Completado {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? procesando,
     TResult Function()? noProcesando,
-    TResult Function(ResultadoOcr resultadoOcr)? completado,
+    TResult Function(ResultadoOcr resultadoOcr, File fotoDocumento)? completado,
     required TResult orElse(),
   }) {
     if (completado != null) {
-      return completado(resultadoOcr);
+      return completado(resultadoOcr, fotoDocumento);
     }
     return orElse();
   }
@@ -783,10 +804,13 @@ class _$CompletadoImpl with DiagnosticableTreeMixin implements _Completado {
 }
 
 abstract class _Completado implements EstadoProcesamiento {
-  const factory _Completado({required final ResultadoOcr resultadoOcr}) =
-      _$CompletadoImpl;
+  const factory _Completado({
+    required final ResultadoOcr resultadoOcr,
+    required final File fotoDocumento,
+  }) = _$CompletadoImpl;
 
   ResultadoOcr get resultadoOcr;
+  File get fotoDocumento;
 
   /// Create a copy of EstadoProcesamiento
   /// with the given fields replaced by the non-null parameter values.

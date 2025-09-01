@@ -9,15 +9,11 @@ class DatosValidacion with _$DatosValidacion {
     @Default('') String numero,
     @Default('') String emision,
     @Default('') String expiracion,
-    @Default('') String fotoTempSrc,
+    @Default('') String fotoPerfilDocumentoTempSrc,
     @Default('') String firmaTempSrc,
+    @Default('') String fotoDocumentoAnversoTempSrc,
+    @Default('') String fotoDocumentoReversoTempSrc,
+    @Default('') String fotoSelfieTempSrc,
+    @Default(0) double similaridad,
   }) = _DatosValidacion;
 }
-
-///
-/// Agregar datos extra
-///
-// Foto Documento Anverso
-// Foto Documento Reverso
-// Foto Carnet
-// Foto Selfie
